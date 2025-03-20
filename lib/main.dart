@@ -100,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
             ),
-            Text('You Clicked: $_counter'),
+            Text('将要发送的参数: $_counter'),
           ],
         ),
       ),
