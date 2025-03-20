@@ -64,12 +64,12 @@ class _MyHomePageState extends State<MyHomePage> {
               valueListenable: Hive.box<String>(kBoxState).listenable(),
               builder: (c, b, _) => ListTile(
                 title: Text(
-                  "ValueListenableBuilder: 监听整个box",
+                  "ValueListenableBuilder: 监听box, 但只取特定的key",
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 subtitle: Text(
-                  'Box Name# ${b.name}\n'
-                  'API Data# ${b.get(kMockFooData)}\n',
+                  'Box Name: ${b.name}\n'
+                  'API Data: ${b.get(kMockFooData)}\n',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
@@ -84,12 +84,12 @@ class _MyHomePageState extends State<MyHomePage> {
               builder: (c, s) {
                 return ListTile(
                   title: Text(
-                    "StreamBuilder: 可监听特定的key",
+                    "StreamBuilder: 监听box, 但只接受符合要求的key",
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   subtitle: Text(
-                    'API Key# ${s.data?.key}\n'
-                    'API Data# ${s.data?.value}\n',
+                    'API Key: ${s.data?.key}\n'
+                    'API Data: ${s.data?.value}\n',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
 
@@ -100,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
             ),
-            Text('You Clicked# $_counter'),
+            Text('You Clicked: $_counter'),
           ],
         ),
       ),
