@@ -69,7 +69,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 subtitle: Text(
                   'Box Name: ${b.name}\n'
-                  'API Data: ${b.get(kMockFooData)}\n',
+                  'Data Key: $kMockFooData\n'
+                  'Data Value: ${b.get(kMockFooData)}\n',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
@@ -88,8 +89,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   subtitle: Text(
-                    'API Key: ${s.data?.key}\n'
-                    'API Data: ${s.data?.value}\n',
+                    'Data Key: ${s.data?.key}\n'
+                    'Data Value: ${s.data?.value}\n',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
 
