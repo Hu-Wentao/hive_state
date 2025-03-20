@@ -40,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Hive.box<String>(kBoxState).put(kMockFooData, data);
     } catch (e) {
       // 捕获到异常, 存到另一个key中(或者通过dialog展示)
-      Hive.box<String>(kBoxState).put('$kMockFooData:err', "$e");
+      Hive.box<String>(kBoxState).put('err:$kMockFooData', "$e");
       if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text("App收到异常 $e")));
@@ -78,10 +78,10 @@ class _MyHomePageState extends State<MyHomePage> {
             StreamBuilder(
               /// 监听正常数据
               // stream: Hive.box<String>(kBoxState).watch(key: kMockFooData),
-              /// 监听正常数据以及异常数据(通过 :err 结尾的key)
+              /// 监听正常数据以及异常数据(监听 kMockFooData结尾的key; err:开头代表异常信息)
               stream: Hive.box<String>(kBoxState)
                   .watch()
-                  .where((event) => '${event.key}'.startsWith(kMockFooData)),
+                  .where((event) => '${event.key}'.endsWith(kMockFooData)),
               builder: (c, s) {
                 return ListTile(
                   title: Text(
@@ -94,8 +94,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
 
-                  /// 展示异常警告icon(通过 :err 结尾的key判断)
-                  trailing: '${s.data?.key}'.endsWith(':err')
+                  /// 展示异常警告icon(通过 err: 开头的key判断)
+                  trailing: '${s.data?.key}'.startsWith('err:')
                       ? const Icon(Icons.error, color: Colors.red)
                       : null,
                 );
