@@ -1,11 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_state/hive_state.dart';
+
+/// FooState 自定义状态类
+/// - `extends HiveState<String>`: 使用[String]类型的状态
+class FooState extends HiveState<String> {}
+
+/// ----
 
 Future<void> main() async {
-  await Hive.initFlutter();
-  await Hive.openBox<String>(kBoxState);
   runApp(const MaterialApp(
-    title: 'Hive State Demo',
+    title: 'HiveState:Global Demo',
     home: MyHomePage(),
   ));
 }
@@ -19,8 +25,8 @@ Future<String> mockFooAPI(int times) async {
   return "mockFooAPI-Resp: Req data with [$times], at [${DateTime.now()}]";
 }
 
-const kBoxState = 'kBoxState';
-const kMockFooData = 'kMockFooData';
+// const kBoxState = 'kBoxState';
+// const kMockFooData = 'kMockFooData';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -37,8 +43,12 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _fetchData() async {
     try {
       final data = await mockFooAPI(_counter);
-      Hive.box<String>(kBoxState).put(kMockFooData, data);
+      // Hive.box<String>(kBoxState).put(kMockFooData, data);
+      FooState().put(data);
     } catch (e) {
+      // 捕获到异常, 存到另一个key中(或者通过dialog展示)
+      // Hive.box<String>(kBoxState).put('err:$kMockFooData', "$e");
+      FooState().putError(e);
       if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text("App收到异常 $e")));
@@ -53,29 +63,29 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Hive State Demo')),
+      appBar: AppBar(title: const Text('Demo: 不在本地缓存数据')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             StreamBuilder(
-              /// 监听正常数据
-              // stream: Hive.box<String>(kBoxState).watch(key: kMockFooData),
-              /// 监听正常数据以及异常数据(监听 kMockFooData结尾的key; err:开头代表异常信息)
-              stream: Hive.box<String>(kBoxState)
-                  .watch()
-                  .where((event) => '${event.key}'.endsWith(kMockFooData)),
+              /// 使用时直接新建实例, 所有实例共享stream
+              stream: FooState().stream,
               builder: (c, s) {
                 return ListTile(
                   title: Text(
-                    "StreamBuilder: 监听box, 但只接受符合要求的key",
+                    "StreamBuilder: 监听数据",
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   subtitle: Text(
-                    'Data Key: ${s.data?.key}\n'
-                    'Data Value: ${s.data?.value}\n',
+                    'Data Value: ${s.data}\n',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
+
+                  /// 展示异常警告icon(通过 err: 开头的key判断)
+                  trailing: s.error != null
+                      ? const Text('ERROR', style: TextStyle(color: Colors.red))
+                      : null,
                 );
               },
             ),
@@ -85,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _fetchData,
-        child: const Icon(Icons.refresh_outlined),
+        child: const Text('+'),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }

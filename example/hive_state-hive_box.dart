@@ -78,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Hive State Demo')),
+      appBar: AppBar(title: const Text('Demo: 存储API数据到本地')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -89,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
               builder: (c, s) {
                 return ListTile(
                   title: Text(
-                    "StreamBuilder: 监听box, 但只接受符合要求的key",
+                    "StreamBuilder: 数据",
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   subtitle: Text(
