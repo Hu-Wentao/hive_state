@@ -88,17 +88,3 @@ abstract class HiveState<T> {
           List<HiveState>? combines) =>
       CombineLatestStream.list([stream, ...?combines?.map((_) => _.stream)]);
 }
-
-/// ----
-
-/// 修改[HiveStateHiveBoxMx]的openHiveBox方法:
-/// - 本例演示自定义加密算法.
-/// - 通过覆写方法, 可以替换Hive实现, 例如改用 SharedPreference
-/// 注意添加泛型 [T]
-mixin MyCipherMx<T> on HiveStateHiveBoxMx<T> {
-  @override
-  Future<Box<E>> openHiveBox<E>(String name) => Hive.openBox<E>(
-        name,
-        encryptionCipher: null, // 自定义加密算法
-      );
-}
