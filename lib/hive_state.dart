@@ -37,11 +37,8 @@ mixin HiveStateHiveBoxMx<T> on HiveState<T> {
   @override
   StreamController<T> onCreateCtrl() {
     final v = _box?.get(stateKey);
-    if (v != null) {
-      return StreamController.broadcast()..add(fromJson(v));
-    } else {
-      return StreamController.broadcast();
-    }
+    if (v != null) return super.onCreateCtrl()..add(v);
+    return super.onCreateCtrl();
   }
 
   /// 每次更新状态, 都将保存到box中
@@ -77,7 +74,7 @@ abstract class HiveState<T> {
   StreamController<T> get ctrl =>
       (__globalCtrlMap[stateKey] ??= onCreateCtrl()) as StreamController<T>;
 
-  StreamController<T> onCreateCtrl() => StreamController.broadcast();
+  StreamController<T> onCreateCtrl() => BehaviorSubject(); // 暂存最新的数据
 
   void put(T value) => ctrl.add(value);
 
