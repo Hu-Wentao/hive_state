@@ -99,6 +99,13 @@ abstract class BaseHiveState<T> {
 
   Stream<T> get stream => ctrl.stream;
 
+  /// 释放内存
+  void dispose() {
+    if (ctrl.isClosed) return;
+    ctrl.close();
+    __globalCtrlMap.remove(stateKey);
+  }
+
   /// 合并多个[HiveState], 任意一个HiveState更新,都会产生新的event
   /// 返回值: List, 按顺序返回每一个Stream的最新的值; 由于每个Stream的类型可能不同, 所以类型为List<dynamic>
   CombineLatestStream<dynamic, List<dynamic>> combineStream(
