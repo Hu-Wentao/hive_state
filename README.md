@@ -24,10 +24,12 @@ flutter run example/hive_state-hive_box.dart -d chrome
 import 'package:flutter/material.dart';
 import 'package:hive_state/hive_state.dart';
 
-/// 1. Define your state
+/// 1. Define your state (Only one line)
+/// 1. 定义状态 (只需要1行)
 class FooState extends HiveState<String> {}
 
 /// 2. Update your state
+/// 2. 更新状态/异常
 /// ... callback, API, ...
 onTap() {
   FooState().put('some data');
@@ -36,6 +38,7 @@ onTap() {
 }
 
 /// 3. Listen to your state
+/// 3. 监听状态变化
 /// ... UI ...
 StreamBuilder(
   stream: FooState().stream,
