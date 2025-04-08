@@ -47,23 +47,37 @@ onTap() {
   FooState().updateOrNull((old) => 'new data with [$old]');
 }
 
-/// 3. Listen to your state
-/// 3. 监听状态数据变化
-/// ... UI ...
-StreamBuilder(
-  stream: FooState().stream,
-  builder: (context, snapshot) {
-    if(snapshot.error !=null){
-      return Text("ERROR: ${snapshot.error}");
-    } 
-    return Text("${s.data}");
-  },
-)
-
-/// 4. Read Value
-/// 4. 读取状态数据
+/// 3. Read Value
+/// 3. 读取状态数据
 /// ... UI2 ...
-Text('${FooState().valueOrNull}')
+buildSimpleUI() {
+  var v;
+  v = FooState().value;
+  // or
+  v = FooState().valueOrNull;
+  
+  return Text("$v");
+}
+
+/// 4. Listen to your state
+/// 4. 监听状态数据变化
+/// ... UI ...
+buildSomeUI() {
+  var s;
+  s = FooState().stream;
+  // or
+  s = FooState().streamWhere();
+  
+  return StreamBuilder(
+    stream: s,
+    builder: (context, snapshot) {
+      if (snapshot.error != null) {
+        return Text("ERROR: ${snapshot.error}");
+      }
+      return Text("${s.data}");
+    },
+  );
+}
 
 /// 5. dispose
 /// 如果该状态退出页面后不再使用,则可以清除

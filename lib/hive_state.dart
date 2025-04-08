@@ -106,6 +106,12 @@ abstract class BaseHiveState<T> {
 
   Stream<T> get stream => ctrl.stream;
 
+  Stream<S> streamWhere<S>({
+    required S Function(T event) convert,
+    bool Function(S previous, S next)? equals,
+  }) =>
+      ctrl.stream.map(convert).distinct(equals);
+
   /// 释放内存
   void dispose() {
     ctrl.close();
