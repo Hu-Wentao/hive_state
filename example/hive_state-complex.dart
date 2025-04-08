@@ -28,10 +28,10 @@ class BarModel {
 /// - `extends HiveState<BarModel>`: 使用[BarModel]类型的状态
 class BarState extends HiveState<BarModel> {
   /// [mockFooAPI] 获取网络数据
-  /// [update],[putError] 为[HiveState]方法
+  /// [update],[putError],[valueOrNull] 为[HiveState]的成员方法
   Future<void> fetchData() async {
     try {
-      final data = await mockFooAPI(BarState().valueOrNull?.page ?? 0);
+      final data = await mockFooAPI(valueOrNull?.page ?? 0);
       // 更新状态,计数器+1
       update((old) => BarModel.of(
             old,

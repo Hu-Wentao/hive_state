@@ -77,14 +77,14 @@ abstract class BaseHiveState<T> {
   /// 全局stream: <StateKey, StreamController>
   static final Map<String, StreamController> __globalCtrlMap = {};
 
-  /// 全局缓存名称: 使用Hive将作为box名称 HSG
+  /// 全局缓存名称: 使用Hive将作为box名称
   /// 一般情况下, 无需覆写
   final String storage = 'HiveState:Global';
 
-  /// [useBox]: 是否使用Box将数据缓存到本地
+  /// 一般情况下, 无需传参
   BaseHiveState({this.instanceName = 'singleton'});
 
-  final String instanceName; //  => '$boxName:singleton'; //默认全局单例
+  final String instanceName;
 
   String get stateKey => '$storage:$runtimeType:$instanceName';
 
