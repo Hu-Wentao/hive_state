@@ -56,8 +56,20 @@ mixin HiveStateHiveBoxMx<T> on HiveState<T> {
 /// 通用状态, 特别是包装后的Widget, 一般不适用于全局单例状态, 请使用Provider等基于Widget的方案
 ///
 /// 基础类
-abstract class HiveState<T> {
-  /// 全局stream
+abstract class HiveState<T> extends BaseHiveState<T> with UpdatableStateMx<T> {}
+
+/// 使用 [BehaviorSubject], 会暂存最新的数据, 增加 [update] 方法
+mixin UpdatableStateMx<T> on BaseHiveState<T> {
+  @override
+  StreamController<T> onCreateCtrl() => BehaviorSubject<T>();
+
+  void update(T Function(T? old) update) =>
+      put(update((ctrl as BehaviorSubject<T>).valueOrNull));
+}
+
+/// 最基础的 [BaseHiveState]
+abstract class BaseHiveState<T> {
+  /// 全局stream: <StateKey, StreamController>
   static final Map<String, StreamController> __globalCtrlMap = {};
 
   /// 全局缓存名称: 使用Hive将作为box名称 HSG
@@ -65,7 +77,7 @@ abstract class HiveState<T> {
   final String storage = 'HiveState:Global';
 
   /// [useBox]: 是否使用Box将数据缓存到本地
-  HiveState({this.instanceName = 'singleton'});
+  BaseHiveState({this.instanceName = 'singleton'});
 
   final String instanceName; //  => '$boxName:singleton'; //默认全局单例
 
@@ -74,7 +86,7 @@ abstract class HiveState<T> {
   StreamController<T> get ctrl =>
       (__globalCtrlMap[stateKey] ??= onCreateCtrl()) as StreamController<T>;
 
-  StreamController<T> onCreateCtrl() => BehaviorSubject(); // 暂存最新的数据
+  StreamController<T> onCreateCtrl() => StreamController.broadcast();
 
   void put(T value) => ctrl.add(value);
 
