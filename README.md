@@ -21,17 +21,23 @@ flutter run example/hive_state-hive_box.dart -d chrome
 ## Usage
 
 ```dart
+import 'package:flutter/material.dart';
+import 'package:hive_state/hive_state.dart';
+
+/// 1. Define your state
 class FooState extends HiveState<String> {}
 
-// ... callback, API, ...
+/// 2. Update your state
+/// ... callback, API, ...
 onTap() {
   FooState().put('some data');
   // or
   FooState().putError('error info');
 }
 
-// ... UI ...
-StreamBuilder<String>(
+/// 3. Listen to your state
+/// ... UI ...
+StreamBuilder(
   stream: FooState().stream,
   builder: (context, snapshot) {
     if(snapshot.error !=null){
