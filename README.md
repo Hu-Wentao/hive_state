@@ -29,16 +29,20 @@ import 'package:hive_state/hive_state.dart';
 class FooState extends HiveState<String> {}
 
 /// 2. Update your state
-/// 2. 更新状态/异常
+/// 2. 更新状态数据/异常
 /// ... callback, API, ...
 onTap() {
   FooState().put('some data');
   // or
   FooState().putError('error info');
+  // or 
+  FooState().update((old) => 'new data with [$old]');
+  // or
+  FooState().updateOrNull((old) => 'new data with [$old]');
 }
 
 /// 3. Listen to your state
-/// 3. 监听状态变化
+/// 3. 监听状态数据变化
 /// ... UI ...
 StreamBuilder(
   stream: FooState().stream,
@@ -49,6 +53,12 @@ StreamBuilder(
     return Text("${s.data}");
   },
 )
+
+/// 4. Read Value
+/// 4. 读取状态数据
+/// ... UI2 ...
+Text('${FooState().valueOrNull}')
+
 ```
 
 ## Additional information

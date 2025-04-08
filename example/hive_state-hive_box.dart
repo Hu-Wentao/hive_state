@@ -75,13 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // Hive.box<String>(kBoxState).put(kMockFooData, data);
       FooState().put(data);
     } catch (e) {
-      // 捕获到异常, 存到另一个key中(或者通过dialog展示)
-      // Hive.box<String>(kBoxState).put('err:$kMockFooData', "$e");
       FooState().putError(e);
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("App收到异常 $e")));
-      }
     }
 
     setState(() {
@@ -101,6 +95,10 @@ class _MyHomePageState extends State<MyHomePage> {
               /// 使用时直接新建实例, 所有实例共享stream
               stream: FooState().stream,
               builder: (c, s) {
+                if (s.hasError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("App收到异常 ${s.error}")));
+                }
                 return ListTile(
                   title: Text(
                     "StreamBuilder: 数据",
@@ -111,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
 
-                  /// 展示异常警告icon(通过 err: 开头的key判断)
+                  /// 展示异常警告
                   trailing: s.error != null
                       ? const Text('ERROR', style: TextStyle(color: Colors.red))
                       : null,

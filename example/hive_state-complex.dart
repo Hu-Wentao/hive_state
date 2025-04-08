@@ -3,9 +3,47 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hive_state/hive_state.dart';
 
+/// 1. MVVM.Model
+class BarModel {
+  String barContent;
+  int page;
+
+  /// constructor: new model
+  BarModel({required this.barContent, required this.page});
+
+  /// constructor: old model & update param
+  BarModel.of(
+    BarModel? old, {
+    String? barContent,
+    int? page,
+  })  :
+
+        /// new value | old value | init value
+        barContent = barContent ?? old?.barContent ?? '',
+        page = page ?? old?.page ?? -1;
+}
+
+/// 2. MVVM.ViewModel
 /// FooState 自定义状态类
-/// - `extends HiveState<String>`: 使用[String]类型的状态
-class FooState extends HiveState<String> {}
+/// - `extends HiveState<BarModel>`: 使用[BarModel]类型的状态
+class BarState extends HiveState<BarModel> {
+  /// [mockFooAPI] 获取网络数据
+  /// [update],[putError] 为[HiveState]方法
+  Future<void> fetchData() async {
+    try {
+      final data = await mockFooAPI(BarState().valueOrNull?.page ?? 0);
+      // 更新状态,计数器+1
+      update((old) => BarModel.of(
+            old,
+            barContent: data,
+            page: old.page + 1,
+          ));
+    } catch (e) {
+      // 捕获到异常
+      putError(e);
+    }
+  }
+}
 
 /// ----
 
@@ -25,36 +63,9 @@ Future<String> mockFooAPI(int times) async {
   return "mockFooAPI-Resp: Req data with [$times], at [${DateTime.now()}]";
 }
 
-// const kBoxState = 'kBoxState';
-// const kMockFooData = 'kMockFooData';
-
-class MyHomePage extends StatefulWidget {
+/// 3. MVVM.View
+class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  /// fetchData 函数: 请求API, 并将数据存入Hive
-  /// 在调用[mockFooAPI]之前, 可以进行防抖/节流操作
-  Future<void> _fetchData() async {
-    try {
-      final data = await mockFooAPI(_counter);
-      // Hive.box<String>(kBoxState).put(kMockFooData, data);
-      FooState().put(data);
-    } catch (e) {
-      // 捕获到异常
-      // Hive.box<String>(kBoxState).put('err:$kMockFooData', "$e");
-      FooState().putError(e);
-    }
-
-    setState(() {
-      _counter++;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             StreamBuilder(
               /// 使用时直接新建实例, 所有实例共享stream
-              stream: FooState().stream,
+              stream: BarState().stream,
               builder: (c, s) {
                 if (s.hasError) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -89,12 +100,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
             ),
-            Text('将要发送的参数: $_counter'),
+            StreamBuilder(
+              stream: BarState().stream,
+              builder: (c, s) => Text('将要发送的参数: ${s.data?.page}'),
+            )
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _fetchData,
+        onPressed: BarState().fetchData,
         child: const Text('+'),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );

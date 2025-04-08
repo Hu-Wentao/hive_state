@@ -63,8 +63,13 @@ mixin UpdatableStateMx<T> on BaseHiveState<T> {
   @override
   StreamController<T> onCreateCtrl() => BehaviorSubject<T>();
 
-  void update(T Function(T? old) update) =>
-      put(update((ctrl as BehaviorSubject<T>).valueOrNull));
+  void update(T Function(T old) update) => put(update(value));
+
+  void updateOrNull(T Function(T? old) update) => put(update(valueOrNull));
+
+  T get value => (ctrl as BehaviorSubject<T>).value;
+
+  T? get valueOrNull => (ctrl as BehaviorSubject<T>).valueOrNull;
 }
 
 /// 最基础的 [BaseHiveState]
