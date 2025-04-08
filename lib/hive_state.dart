@@ -5,7 +5,14 @@ import 'dart:async';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
+/// HiveState 使用全局变量+本地存储 管理全局单例状态, 适用于简单全局数据状态
+/// [BaseHiveState] 核心基础功能
+/// [UpdatableStateMx] 将暂存最新的数据
+/// [HiveStateHiveBoxMx] 将状态持久化到本地
+
 /// 使用 with 混入本类, 以添加Hive持久化支持
+/// 调用[dispose] 不会移除本地存储的数据
+/// [onCreate] 设置的初始化数据仅在本地数据为null时生效
 mixin HiveStateHiveBoxMx<T> on HiveState<T> {
   Box? get _box => Hive.box<String>(storage);
 
@@ -35,10 +42,9 @@ mixin HiveStateHiveBoxMx<T> on HiveState<T> {
   T fromJson(String value);
 
   @override
-  StreamController<T> onCreateCtrl() {
-    final v = _box?.get(stateKey);
-    if (v != null) return super.onCreateCtrl()..add(v);
-    return super.onCreateCtrl();
+  StreamController<T> onCreate({T? initValue}) {
+    final v = _box?.get(stateKey) ?? initValue;
+    return super.onCreate(initValue: v);
   }
 
   /// 每次更新状态, 都将保存到box中
@@ -49,7 +55,6 @@ mixin HiveStateHiveBoxMx<T> on HiveState<T> {
   }
 }
 
-/// HiveState 使用全局变量+本地存储 管理全局单例状态, 适用于简单全局数据状态
 /// - 适用于:
 /// 全局状态, 典型的如 '放置在App顶层的Provider状态'
 /// - 不适用于:
@@ -61,7 +66,9 @@ abstract class HiveState<T> extends BaseHiveState<T> with UpdatableStateMx<T> {}
 /// 使用 [BehaviorSubject], 会暂存最新的数据, 增加 [update] 方法
 mixin UpdatableStateMx<T> on BaseHiveState<T> {
   @override
-  StreamController<T> onCreateCtrl() => BehaviorSubject<T>();
+  StreamController<T> onCreate({T? initValue}) => (initValue != null)
+      ? BehaviorSubject<T>.seeded(initValue)
+      : BehaviorSubject<T>();
 
   void update(T Function(T old) update) => put(update(value));
 
@@ -89,9 +96,9 @@ abstract class BaseHiveState<T> {
   String get stateKey => '$storage:$runtimeType:$instanceName';
 
   StreamController<T> get ctrl =>
-      (__globalCtrlMap[stateKey] ??= onCreateCtrl()) as StreamController<T>;
+      (__globalCtrlMap[stateKey] ??= onCreate()) as StreamController<T>;
 
-  StreamController<T> onCreateCtrl() => StreamController.broadcast();
+  StreamController<T> onCreate() => StreamController.broadcast();
 
   void put(T value) => ctrl.add(value);
 
@@ -101,7 +108,6 @@ abstract class BaseHiveState<T> {
 
   /// 释放内存
   void dispose() {
-    if (ctrl.isClosed) return;
     ctrl.close();
     __globalCtrlMap.remove(stateKey);
   }

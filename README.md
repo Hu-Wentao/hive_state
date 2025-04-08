@@ -26,9 +26,13 @@ flutter run example/hive_state-hive_box.dart -d chrome
 import 'package:flutter/material.dart';
 import 'package:hive_state/hive_state.dart';
 
-/// 1. Define your state (Only one line)
-/// 1. 定义状态 (只需要1行)
-class FooState extends HiveState<String> {}
+/// 1. Define your state
+/// 1. 定义状态
+class FooState extends HiveState<String> {
+  @override
+  StreamController<String> onCreate({String? initValue}) =>
+      super.onCreate(initValue: 'this is initial value');
+}
 
 /// 2. Update your state
 /// 2. 更新状态数据/异常
@@ -60,6 +64,16 @@ StreamBuilder(
 /// 4. 读取状态数据
 /// ... UI2 ...
 Text('${FooState().valueOrNull}')
+
+/// 5. dispose
+/// 如果该状态退出页面后不再使用,则可以清除
+/// ... UI3 ...
+class XxxPageState extends State<XxxPage>{
+  dispose(){
+    FooState().dispose();
+    super.dispose();
+  }
+}
 
 ```
 

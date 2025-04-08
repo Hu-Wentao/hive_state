@@ -27,6 +27,14 @@ class BarModel {
 /// FooState 自定义状态类
 /// - `extends HiveState<BarModel>`: 使用[BarModel]类型的状态
 class BarState extends HiveState<BarModel> {
+  /// 2.1 SET Init Value
+  /// 设置初始值, 否则[update]函数将会在没有初始值时报错
+  @override
+  StreamController<BarModel> onCreate({BarModel? initValue}) =>
+      super.onCreate(initValue: BarModel(barContent: '', page: 0));
+
+  /// 2.2 MV Biz logic method
+  /// 2.2 MV 业务逻辑
   /// [mockFooAPI] 获取网络数据
   /// [update],[putError],[valueOrNull] 为[HiveState]的成员方法
   Future<void> fetchData() async {
