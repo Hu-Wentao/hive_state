@@ -55,35 +55,46 @@ buildSimpleUI() {
   v = FooState().value;
   // or
   v = FooState().valueOrNull;
-  
+
   return Text("$v");
 }
 
 /// 4. Listen to your state
-/// 4. 监听状态数据变化
+/// 4. 监听状态&异常数据变化
 /// ... UI ...
-buildSomeUI() {
-  var s;
-  s = FooState().stream;
-  // or
-  s = FooState().streamWhere();
-  
-  return StreamBuilder(
-    stream: s,
-    builder: (context, snapshot) {
-      if (snapshot.error != null) {
-        return Text("ERROR: ${snapshot.error}");
-      }
-      return Text("${s.data}");
-    },
-  );
+class _MyHomePageState extends State<MyHomePage> {
+  @override
+  void initState() {
+    // 监听异常1
+    BarState().stream.listen((event) {}, onError: (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("App收到异常 $e")));
+    });
+    super.initState();
+  }
+
+  buildSomeUI() {
+    return StreamBuilder(
+      // 监听状态
+      stream: FooState().stream,
+      builder: (context, snapshot) {
+        // 监听异常2
+        if (snapshot.error != null) {
+          return Text("ERROR: ${snapshot.error}");
+        }
+        return Text("${s.data}");
+      },
+    );
+  }
+
 }
+
 
 /// 5. dispose
 /// 如果该状态退出页面后不再使用,则可以清除
 /// ... UI3 ...
-class XxxPageState extends State<XxxPage>{
-  dispose(){
+class XxxPageState extends State<XxxPage> {
+  dispose() {
     FooState().dispose();
     super.dispose();
   }

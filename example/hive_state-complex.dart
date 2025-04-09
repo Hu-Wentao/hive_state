@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_state/hive_state.dart';
 
 /// 1. MVVM.Model
+///   Model 只包括数据转换逻辑,值对象逻辑
 class BarModel {
   String barContent;
   int page;
@@ -24,6 +25,11 @@ class BarModel {
 }
 
 /// 2. MVVM.ViewModel
+/// ViewModel 包括主要业务逻辑: 数据加载, 处理, 转换...
+///   VM的方法只返回 void 或 Stream, UI根据Model或Stream刷新
+///     void 用于各类widget的 onTap函数
+///     Stream 用于StreamBuilder
+///
 /// FooState 自定义状态类
 /// - `extends HiveState<BarModel>`: 使用[BarModel]类型的状态
 class BarState extends HiveState<BarModel> {
@@ -72,8 +78,23 @@ Future<String> mockFooAPI(int times) async {
 }
 
 /// 3. MVVM.View
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  @override
+  void initState() {
+    // 监听报错方式2
+    BarState().stream.listen((event) {}, onError: (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("App收到异常 $e")));
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,8 +109,9 @@ class MyHomePage extends StatelessWidget {
               stream: BarState().stream,
               builder: (c, s) {
                 if (s.hasError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("App收到异常 ${s.error}")));
+                  // 监听异常方式1
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //     SnackBar(content: Text("App收到异常 ${s.error}")));
                 }
                 return ListTile(
                   title: Text(
