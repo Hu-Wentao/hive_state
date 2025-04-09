@@ -43,6 +43,11 @@ onTap() {
   FooState().putError('error info');
   // or 
   FooState().update((old) => 'new data with [$old]');
+  // if old is object:
+  FooState().update((old) => old
+    ..someField = null
+    ..fooField = null
+    ..barField = null);
   // or
   FooState().updateOrNull((old) => 'new data with [$old]');
 }
