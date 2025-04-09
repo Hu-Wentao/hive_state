@@ -1,7 +1,9 @@
 library hive_state;
 
 import 'dart:async';
+import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -9,6 +11,7 @@ import 'package:rxdart/rxdart.dart';
 /// [BaseHiveState] 核心基础功能
 /// [UpdatableStateMx] 将暂存最新的数据
 /// [HiveStateHiveBoxMx] 将状态持久化到本地
+/// [LoggableMx] 打印putError的内容
 
 /// 使用 with 混入本类, 以添加Hive持久化支持
 /// 调用[dispose] 不会移除本地存储的数据
@@ -55,13 +58,19 @@ mixin HiveStateHiveBoxMx<T> on HiveState<T> {
   }
 }
 
-/// - 适用于:
-/// 全局状态, 典型的如 '放置在App顶层的Provider状态'
-/// - 不适用于:
-/// 通用状态, 特别是包装后的Widget, 一般不适用于全局单例状态, 请使用Provider等基于Widget的方案
 ///
-/// 基础类
-abstract class HiveState<T> extends BaseHiveState<T> with UpdatableStateMx<T> {}
+/// 开箱即用的 HiveState基类
+abstract class HiveState<T> extends BaseHiveState<T>
+    with UpdatableStateMx<T>, LoggableMx<T> {}
+
+/// 使用[log] 打印异常信息
+mixin LoggableMx<T> on BaseHiveState<T> {
+  @override
+  void putError(Object value) {
+    if (kDebugMode) log('$value', name: stateKey);
+    super.putError(value);
+  }
+}
 
 /// 使用 [BehaviorSubject], 会暂存最新的数据, 增加 [update] 方法
 mixin UpdatableStateMx<T> on BaseHiveState<T> {
@@ -86,10 +95,10 @@ abstract class BaseHiveState<T> {
 
   /// 全局缓存名称: 使用Hive将作为box名称
   /// 一般情况下, 无需覆写
-  final String storage = 'HiveState:Global';
+  final String storage = 'HS'; //'HiveState';
 
   /// 一般情况下, 无需传参
-  BaseHiveState({this.instanceName = 'singleton'});
+  BaseHiveState({this.instanceName = 'G'}); // Global
 
   final String instanceName;
 
