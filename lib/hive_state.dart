@@ -4,8 +4,14 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:rxdart/rxdart.dart';
+
+typedef HSModel = Object;
+
+/// 默认使用[HiveState], 包含常用功能
+typedef HSViewModel<T extends HSModel> = HiveState<T>;
 
 /// HiveState 使用全局变量+本地存储 管理全局单例状态, 适用于简单全局数据状态
 /// [BaseHiveState] 核心基础功能
@@ -98,11 +104,12 @@ abstract class BaseHiveState<T> {
   final String storage = 'HS'; //'HiveState';
 
   /// 一般情况下, 无需传参
-  BaseHiveState({this.instanceName = 'G'}); // Global
+  BaseHiveState({this.instance = 'G'}); // Global
 
-  final String instanceName;
+  final String instance;
 
-  String get stateKey => '$storage:$runtimeType:$instanceName';
+  // 默认前缀 "HS:G",将被用于从全局搜索 stream
+  String get stateKey => '$storage:$instance:$runtimeType';
 
   StreamController<T> get ctrl =>
       (__globalCtrlMap[stateKey] ??= onCreate()) as StreamController<T>;
@@ -115,7 +122,11 @@ abstract class BaseHiveState<T> {
 
   Stream<T> get stream => ctrl.stream;
 
+  /// ============== 以下是高级功能, 一般情况下无需使用 ==============
+
   /// 释放内存
+  /// 没有必要主动释放全局状态, 因为移除全局状态意味着App退出;
+  /// 除非需要控制单页面的状态, 并且手动管理初始化与释放
   void dispose() {
     ctrl.close();
     __globalCtrlMap.remove(stateKey);
@@ -126,4 +137,46 @@ abstract class BaseHiveState<T> {
   CombineLatestStream<dynamic, List<dynamic>> combineStream(
           List<HiveState>? combines) =>
       CombineLatestStream.list([stream, ...?combines?.map((_) => _.stream)]);
+
+  /// 从全局查询状态,将使用默认的前缀参数;
+  /// 不适用于已经自定义[storage]和[instance]的情况
+  static Stream<M> _streamBy<M>(Type vm) {
+    // todo try catch
+    return __globalCtrlMap['HS:G:$vm']?.stream as Stream<M>;
+  }
+}
+
+///
+class HiveStateView<M extends Object, VM extends BaseHiveState<M>>
+    extends StatelessWidget {
+  final AsyncWidgetBuilder<VM> builder;
+
+  const HiveStateView({super.key, required this.builder});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<M>(
+        stream: BaseHiveState._streamBy<M>(VM),
+        builder: (context, snapshot) {
+          return const Placeholder();
+        });
+  }
+}
+
+/// 页面View, 可以自动管理 页面级别状态
+class HiveStatePageView<M extends Object, VM extends BaseHiveState<M>>
+    extends StatefulWidget {
+  /// 页面关闭时释放状态
+  final bool releaseStateOnDispose;
+  const HiveStatePageView({super.key, this.releaseStateOnDispose = true});
+
+  @override
+  State<HiveStatePageView> createState() => _HiveStatePageViewState();
+}
+
+class _HiveStatePageViewState extends State<HiveStatePageView> {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
 }

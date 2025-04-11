@@ -5,6 +5,7 @@ import 'package:hive_state/hive_state.dart';
 
 /// 1. MVVM.Model
 ///   Model 只包括数据转换逻辑,值对象逻辑
+///   虽然VM是全局可访问的, 但是不要从Model中访问其他VM以及其他VM的数据
 class BarModel {
   String barContent;
   int page;
@@ -29,7 +30,7 @@ class BarModel {
 ///   VM的方法只返回 void 或 Stream, UI根据Model或Stream刷新
 ///     void 用于各类widget的 onTap函数
 ///     Stream 用于StreamBuilder
-///
+///   VM内部可以访问其他VM的数据(其他VM的M中的数据)
 /// FooState 自定义状态类
 /// - `extends HiveState<BarModel>`: 使用[BarModel]类型的状态
 class BarState extends HiveState<BarModel> {
