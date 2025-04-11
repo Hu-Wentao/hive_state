@@ -52,7 +52,7 @@ mixin HiveStateHiveBoxMx<T> on HiveState<T> {
 
   /// 每次更新状态, 都将保存到box中
   @override
-  put(T value) {
+  BaseHiveState<T> put(T value) {
     _box?.put(stateKey, toJson(value));
     return super.put(value);
   }
@@ -66,9 +66,9 @@ abstract class HiveState<T> extends BaseHiveState<T>
 /// 使用[log] 打印异常信息
 mixin LoggableMx<T> on BaseHiveState<T> {
   @override
-  void putError(Object value) {
+  BaseHiveState<T> putError(Object value) {
     if (kDebugMode) log('$value', name: stateKey);
-    super.putError(value);
+    return super.putError(value);
   }
 }
 
@@ -79,9 +79,10 @@ mixin UpdatableStateMx<T> on BaseHiveState<T> {
       ? BehaviorSubject<T>.seeded(initValue)
       : BehaviorSubject<T>();
 
-  void update(T Function(T old) update) => put(update(value));
+  BaseHiveState<T> update(T Function(T old) update) => put(update(value));
 
-  void updateOrNull(T Function(T? old) update) => put(update(valueOrNull));
+  BaseHiveState<T> updateOrNull(T Function(T? old) update) =>
+      put(update(valueOrNull));
 
   T get value => (ctrl as BehaviorSubject<T>).value;
 
@@ -107,11 +108,19 @@ abstract class BaseHiveState<T> {
   StreamController<T> get ctrl =>
       (__globalCtrlMap[stateKey] ??= onCreate()) as StreamController<T>;
 
-  StreamController<T> onCreate() => StreamController.broadcast();
+  /// 通过覆写[onCreate],可以实现在首次创建[ctrl]时设置初始数据[T]
+  /// 注意: 一般情况下, 是在Widget的initState方法中调用 [put] 值进行初始化;
+  StreamController<T> onCreate({T? initValue}) => StreamController.broadcast();
 
-  void put(T value) => ctrl.add(value);
+  BaseHiveState<T> put(T value) {
+    ctrl.add(value);
+    return this;
+  }
 
-  void putError(Object value) => ctrl.addError(value);
+  BaseHiveState<T> putError(Object value) {
+    ctrl.addError(value);
+    return this;
+  }
 
   Stream<T> get stream => ctrl.stream;
 
