@@ -61,7 +61,25 @@ mixin HiveStateHiveBoxMx<T> on HiveState<T> {
 ///
 /// 开箱即用的 HiveState基类
 abstract class HiveState<T> extends BaseHiveState<T>
-    with UpdatableStateMx<T>, LoggableMx<T> {}
+    with UpdatableStateMx<T>, LoggableMx<T> {
+  /// 通过构造函数传入Model值, 相当于
+  /// ` HiveState().put('some value'); `
+  ///
+  /// 一般在Page的[initState]函数中被调用, 也可以自己包装静态方法进行初始化(适用于需要API请求的情况)
+  /// ```dart
+  ///  @override
+  ///  void initState() {
+  ///    HiveState(value: 'this is initValue');
+  ///    super.initState();
+  ///  }
+  /// ```
+  HiveState({
+    T? value,
+    String instance = 'G',
+  }) : super(instance: instance) {
+    if (value != null) put(value);
+  }
+}
 
 /// 使用[log] 打印异常信息
 mixin LoggableMx<T> on BaseHiveState<T> {
@@ -99,11 +117,11 @@ abstract class BaseHiveState<T> {
   final String storage = 'HS'; //'HiveState';
 
   /// 一般情况下, 无需传参
-  BaseHiveState({this.instanceName = 'G'}); // Global
+  BaseHiveState({this.instance = 'G'}); // Global
 
-  final String instanceName;
+  final String instance;
 
-  String get stateKey => '$storage:$runtimeType:$instanceName';
+  String get stateKey => '$storage:$instance:$runtimeType';
 
   StreamController<T> get ctrl =>
       (__globalCtrlMap[stateKey] ??= onCreate()) as StreamController<T>;
