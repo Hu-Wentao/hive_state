@@ -34,30 +34,44 @@ class MyArticleModel {
 /// FooState 自定义状态类
 /// - `extends HiveState<MyArticleModel>`: 使用[MyArticleModel]类型的状态
 class MyArticleState extends HiveState<MyArticleModel> {
-  /// 2.1 SET Init Value
-  /// 设置初始值, 否则[update]函数将会在没有初始值时报错
+  /// 2.0: 创建数据请求函数, API, 数据库, 设备...
+  /// 模拟API请求
+  /// [times]: 模拟API传参
+  Future<String> mockFooAPI(int times) async {
+    debugPrint("API received: $times");
+    if (times > 4 && times % 2 == 0) throw "Error: 请求频繁! ($times)";
+    await Future.delayed(const Duration(seconds: 1));
+    return "mockFooAPI-Resp: Req data with [$times], at [${DateTime.now()}]";
+  }
+
+  /// 2.1.A: SET Init Value
+  /// 2.1.A: 设置初始值, 否则[update]函数将会在没有初始值时报错;
+  ///   可以跳过这一步,但这就必须要设置2.1.B 步骤
   @override
   StreamController<MyArticleModel> onCreate({MyArticleModel? initValue}) =>
       super.onCreate(initValue: MyArticleModel(barContent: '', page: 0));
 
-  /// 2.2 MV Biz logic method
-  /// 2.2 MV 业务逻辑
+  /// 2.1.B: 初始化方法: 手动显式初始化模型数据
+  /// 也可以在这里调用[fetchDate]方法
+  Future<void> _init() => tryUpdateOrNull((_) async {
+        final v = MyArticleModel(barContent: 'init', page: 0);
+        // 初始化数据
+        return v;
+      });
+  // 包装初始化方法
+  static Future<void> init() async => MyArticleState()._init();
+
+  /// 2.2: MV Biz logic method
+  /// 2.2: MV 业务逻辑
   /// [mockFooAPI] 获取网络数据
   /// [update],[putError],[valueOrNull] 为[HiveState]的成员方法
-  Future<void> fetchData() async {
-    try {
-      final data = await mockFooAPI(valueOrNull?.page ?? 0);
-      // 更新状态,计数器+1
-      update((old) => MyArticleModel.of(
-            old,
-            barContent: data,
-            page: old.page + 1,
-          ));
-    } catch (e) {
-      // 捕获到异常
-      putError(e);
-    }
-  }
+  /// 使用[tryUpdate] 自动捕获异常
+  Future<void> fetchDate() async => tryUpdate((old) async {
+        final data = await mockFooAPI(old.page);
+        return old
+          ..barContent = data
+          ..page = old.page + 1;
+      });
 }
 
 /// ----
@@ -67,15 +81,6 @@ Future<void> main() async {
     title: 'HiveState:Global Demo',
     home: MyHomePage(),
   ));
-}
-
-/// 模拟API请求
-/// [times]: 模拟API传参
-Future<String> mockFooAPI(int times) async {
-  debugPrint("API received: $times");
-  if (times > 4 && times % 2 == 0) throw "Error: 请求频繁! ($times)";
-  await Future.delayed(const Duration(seconds: 1));
-  return "mockFooAPI-Resp: Req data with [$times], at [${DateTime.now()}]";
 }
 
 /// 3. MVVM.View
@@ -89,6 +94,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
+    MyArticleState.init(); // 初始化
+
     // 监听报错方式2
     MyArticleState().stream.listen((event) {}, onError: (e) {
       ScaffoldMessenger.of(context)
@@ -139,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: MyArticleState().fetchData,
+        onPressed: MyArticleState().fetchDate,
         child: const Text('+'),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );

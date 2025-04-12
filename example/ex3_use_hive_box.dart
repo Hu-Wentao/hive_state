@@ -6,11 +6,11 @@ import 'package:hive_state/hive_state.dart';
 
 /// ----
 
-/// 修改[HiveStateHiveBoxMx]的openHiveBox方法:
+/// 修改[HiveBoxMx]的openHiveBox方法:
 /// - 本例演示自定义加密算法.
 /// - 通过覆写方法, 可以替换Hive实现, 例如改用 SharedPreference
 /// 注意添加泛型 [T]
-mixin MyCipherMx<T> on HiveStateHiveBoxMx<T> {
+mixin MyCipherMx<T> on HiveBoxMx<T> {
   @override
   Future<Box<E>> openHiveBox<E>(String name) => Hive.openBox<E>(
         name,
@@ -20,9 +20,9 @@ mixin MyCipherMx<T> on HiveStateHiveBoxMx<T> {
 
 /// FooState 自定义状态类
 /// - `extends HiveState<String>`: 使用[String]类型的状态
-/// - `with HiveStateHiveBoxMx`: 使用[HiveStateHiveBoxMx]通过Hive持久化状态
+/// - `with HiveStateHiveBoxMx`: 使用[HiveBoxMx]通过Hive持久化状态
 /// - `MyCipherMx`: 混入 [MyCipherMx], 覆写[openHiveBox], 自定义加密算法
-class FooState extends HiveState<String> with HiveStateHiveBoxMx, MyCipherMx {
+class FooState extends HiveState<String> with HiveBoxMx, MyCipherMx {
   // 基本类型, 无需转换
   @override
   String fromJson(String value) => value;

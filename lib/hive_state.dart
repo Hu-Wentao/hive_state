@@ -7,16 +7,18 @@ import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
-/// HiveState 使用全局变量+本地存储 管理全局单例状态, 适用于简单全局数据状态
-/// [BaseHiveState] 核心基础功能
-/// [UpdatableStateMx] 将暂存最新的数据
-/// [HiveStateHiveBoxMx] 将状态持久化到本地
-/// [LoggableMx] 打印putError的内容
+/// HiveState
+/// [BaseHiveState] 核心基础功能: 使用Stream传递数据
+/// [ValuableMx] 暂存最新的数据
+/// [TryUpdatableMx] 提供 [tryUpdate] 方法, 自动捕获异常
+/// [LoggableMx] 打印[putError]的异常于StackTrace
+/// --- 可选mixin ---
+/// [HiveBoxMx] 状态持久化状态到本地
 
 /// 使用 with 混入本类, 以添加Hive持久化支持
 /// 调用[dispose] 不会移除本地存储的数据
 /// [onCreate] 设置的初始化数据仅在本地数据为null时生效
-mixin HiveStateHiveBoxMx<T> on HiveState<T> {
+mixin HiveBoxMx<T> on HiveState<T> {
   Box? get _box => Hive.box<String>(storage);
 
   /// 全局单例: box固定为String
@@ -61,7 +63,7 @@ mixin HiveStateHiveBoxMx<T> on HiveState<T> {
 ///
 /// 开箱即用的 HiveState基类
 abstract class HiveState<T> extends BaseHiveState<T>
-    with UpdatableStateMx<T>, LoggableMx<T> {
+    with ValuableMx<T>, LoggableMx<T>, TryUpdatableMx<T> {
   /// 通过构造函数传入Model值, 相当于
   /// ` HiveState().put('some value'); `
   ///
@@ -90,17 +92,12 @@ mixin LoggableMx<T> on BaseHiveState<T> {
   }
 }
 
-/// 使用 [BehaviorSubject], 会暂存最新的数据, 增加 [update] 方法
-mixin UpdatableStateMx<T> on BaseHiveState<T> {
+/// 使用 [BehaviorSubject], 会暂存最新的数据
+mixin ValuableMx<T> on BaseHiveState<T> {
   @override
   StreamController<T> onCreate({T? initValue}) => (initValue != null)
       ? BehaviorSubject<T>.seeded(initValue)
       : BehaviorSubject<T>();
-
-  BaseHiveState<T> update(T Function(T old) update) => put(update(value));
-
-  BaseHiveState<T> updateOrNull(T Function(T? old) update) =>
-      put(update(valueOrNull));
 
   T get value => (ctrl as BehaviorSubject<T>).value;
 
@@ -153,4 +150,29 @@ abstract class BaseHiveState<T> {
   CombineLatestStream<dynamic, List<dynamic>> combineStream(
           List<HiveState>? combines) =>
       CombineLatestStream.list([stream, ...?combines?.map((_) => _.stream)]);
+}
+
+/// 添加[tryUpdate]方法, 自动捕获异常
+mixin TryUpdatableMx<T> on BaseHiveState<T>, ValuableMx<T>, LoggableMx<T> {
+  /// 执行一个异步操作, 并更新状态
+  /// 不建议对本方法进行二次包装, 因此返回值强制为 void
+  Future<void> tryUpdate(FutureOr<T> Function(T old) update) async {
+    try {
+      final data = await update(value);
+      put(data);
+    } catch (e, s) {
+      putError(e, s);
+    }
+  }
+
+  /// 'use tryUpdate: 不建议将初始值设为null,带来额外的null检查步骤'
+  /// 本函数建议只用于 init数据场景下
+  Future<void> tryUpdateOrNull(FutureOr<T> Function(T? old) update) async {
+    try {
+      final data = await update(valueOrNull);
+      put(data);
+    } catch (e, s) {
+      putError(e, s);
+    }
+  }
 }
