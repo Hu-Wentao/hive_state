@@ -10,7 +10,7 @@ import 'package:rxdart/rxdart.dart';
 /// HiveState
 /// [BaseHiveState] 核心基础功能: 使用Stream传递数据
 /// [ValuableMx] 暂存最新的数据
-/// [TryUpdatableMx] 提供 [tryUpdate] 方法, 自动捕获异常
+/// [TryUpdatableMx] 提供 [update] 方法, 自动捕获异常
 /// [LoggableMx] 打印[putError]的异常于StackTrace
 /// --- 可选mixin ---
 /// [HiveBoxMx] 状态持久化状态到本地
@@ -152,11 +152,11 @@ abstract class BaseHiveState<T> {
       CombineLatestStream.list([stream, ...?combines?.map((_) => _.stream)]);
 }
 
-/// 添加[tryUpdate]方法, 自动捕获异常
+/// 添加[update]方法, 自动捕获异常
 mixin TryUpdatableMx<T> on BaseHiveState<T>, ValuableMx<T>, LoggableMx<T> {
   /// 执行一个异步操作, 并更新状态
   /// 不建议对本方法进行二次包装, 因此返回值强制为 void
-  Future<void> tryUpdate(FutureOr<T> Function(T old) update) async {
+  Future<void> update(FutureOr<T> Function(T old) update) async {
     try {
       final data = await update(value);
       put(data);
@@ -167,7 +167,7 @@ mixin TryUpdatableMx<T> on BaseHiveState<T>, ValuableMx<T>, LoggableMx<T> {
 
   /// 'use tryUpdate: 不建议将初始值设为null,带来额外的null检查步骤'
   /// 本函数建议只用于 init数据场景下
-  Future<void> tryUpdateOrNull(FutureOr<T> Function(T? old) update) async {
+  Future<void> updateOrNull(FutureOr<T> Function(T? old) update) async {
     try {
       final data = await update(valueOrNull);
       put(data);

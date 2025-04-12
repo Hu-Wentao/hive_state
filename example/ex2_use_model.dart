@@ -53,7 +53,7 @@ class MyArticleState extends HiveState<MyArticleModel> {
 
   /// 2.1.B: 初始化方法: 手动显式初始化模型数据
   /// 也可以在这里调用[fetchDate]方法
-  Future<void> _init() => tryUpdateOrNull((_) async {
+  Future<void> _init() => updateOrNull((_) async {
         final v = MyArticleModel(barContent: 'init', page: 0);
         // 初始化数据
         return v;
@@ -65,8 +65,8 @@ class MyArticleState extends HiveState<MyArticleModel> {
   /// 2.2: MV 业务逻辑
   /// [mockFooAPI] 获取网络数据
   /// [update],[putError],[valueOrNull] 为[HiveState]的成员方法
-  /// 使用[tryUpdate] 自动捕获异常
-  Future<void> fetchDate() async => tryUpdate((old) async {
+  /// 使用[update] 自动捕获异常
+  Future<void> fetchDate() async => update((old) async {
         final data = await mockFooAPI(old.page);
         return old
           ..barContent = data
