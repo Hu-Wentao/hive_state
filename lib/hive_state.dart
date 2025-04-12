@@ -84,12 +84,23 @@ abstract class HiveState<T> extends BaseHiveState<T>
 }
 
 /// 使用[log] 打印异常信息
-mixin LoggableMx<T> on BaseHiveState<T> {
+mixin LoggableMx<T> on BaseHiveState<T>, ValuableMx<T> {
   @override
   BaseHiveState<T> putError(Object e, [StackTrace? s]) {
-    if (kDebugMode) log('$e\n$s', name: stateKey);
+    if (kDebugMode) {
+      log(
+        '${valueToString(valueOrNull)}\n'
+        '$e\n'
+        '$s',
+        name: stateKey,
+      );
+    }
     return super.putError(e);
   }
+
+  /// [putError]中, 将会打印model值[value]
+  /// 覆写本函数, 返回需要打印的内容
+  String valueToString(T? value) => '$value';
 }
 
 /// 使用 [BehaviorSubject], 会暂存最新的数据
