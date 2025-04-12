@@ -66,9 +66,9 @@ abstract class HiveState<T> extends BaseHiveState<T>
 /// 使用[log] 打印异常信息
 mixin LoggableMx<T> on BaseHiveState<T> {
   @override
-  BaseHiveState<T> putError(Object value) {
-    if (kDebugMode) log('$value', name: stateKey);
-    return super.putError(value);
+  BaseHiveState<T> putError(Object e, [StackTrace? s]) {
+    if (kDebugMode) log('$e\n$s', name: stateKey);
+    return super.putError(e);
   }
 }
 
