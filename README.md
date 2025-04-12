@@ -13,11 +13,11 @@ run example:
 
 ```shell
 # simple example: use String type model
-flutter run example/hive_state.dart -d chrome
+flutter run example/ex1_simple.dart -d chrome
 # complex example: use custom type model
-flutter run example/hive_state-complex.dart -d chrome
+flutter run example/ex2_use_model.dart -d chrome
 # use `hive_flutter`, persistent API data example
-flutter run example/hive_state-hive_box.dart -d chrome
+flutter run example/ex3_use_hive_box.dart -d chrome
 ```
 
 ## Usage

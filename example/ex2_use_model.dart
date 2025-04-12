@@ -6,16 +6,16 @@ import 'package:hive_state/hive_state.dart';
 /// 1. MVVM.Model
 ///   Model 只包括数据转换逻辑,值对象逻辑
 ///   虽然VM是全局可访问的, 但是不要从Model中访问其他VM以及其他VM的数据
-class BarModel {
+class MyArticleModel {
   String barContent;
   int page;
 
   /// constructor: new model
-  BarModel({required this.barContent, required this.page});
+  MyArticleModel({required this.barContent, required this.page});
 
   /// constructor: old model & update param
-  BarModel.of(
-    BarModel? old, {
+  MyArticleModel.of(
+    MyArticleModel? old, {
     String? barContent,
     int? page,
   })  :
@@ -32,13 +32,13 @@ class BarModel {
 ///     Stream 用于StreamBuilder
 ///   VM内部可以访问其他VM的数据(其他VM的M中的数据)
 /// FooState 自定义状态类
-/// - `extends HiveState<BarModel>`: 使用[BarModel]类型的状态
-class BarState extends HiveState<BarModel> {
+/// - `extends HiveState<MyArticleModel>`: 使用[MyArticleModel]类型的状态
+class MyArticleState extends HiveState<MyArticleModel> {
   /// 2.1 SET Init Value
   /// 设置初始值, 否则[update]函数将会在没有初始值时报错
   @override
-  StreamController<BarModel> onCreate({BarModel? initValue}) =>
-      super.onCreate(initValue: BarModel(barContent: '', page: 0));
+  StreamController<MyArticleModel> onCreate({MyArticleModel? initValue}) =>
+      super.onCreate(initValue: MyArticleModel(barContent: '', page: 0));
 
   /// 2.2 MV Biz logic method
   /// 2.2 MV 业务逻辑
@@ -48,7 +48,7 @@ class BarState extends HiveState<BarModel> {
     try {
       final data = await mockFooAPI(valueOrNull?.page ?? 0);
       // 更新状态,计数器+1
-      update((old) => BarModel.of(
+      update((old) => MyArticleModel.of(
             old,
             barContent: data,
             page: old.page + 1,
@@ -90,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     // 监听报错方式2
-    BarState().stream.listen((event) {}, onError: (e) {
+    MyArticleState().stream.listen((event) {}, onError: (e) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("App收到异常 $e")));
     });
@@ -107,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             StreamBuilder(
               /// 使用时直接新建实例, 所有实例共享stream
-              stream: BarState().stream,
+              stream: MyArticleState().stream,
               builder: (c, s) {
                 if (s.hasError) {
                   // 监听异常方式1
@@ -132,14 +132,14 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             StreamBuilder(
-              stream: BarState().stream,
+              stream: MyArticleState().stream,
               builder: (c, s) => Text('将要发送的参数: ${s.data?.page}'),
             )
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: BarState().fetchData,
+        onPressed: MyArticleState().fetchData,
         child: const Text('+'),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
