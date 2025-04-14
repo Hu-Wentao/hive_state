@@ -1,7 +1,12 @@
 name: hive_state
-description: "A new Flutter project."
+description: "A global state management tool based on RxDart & HiveFlutter"
 version: 0.0.1
 homepage: 'https://github.com/Hu-Wentao/hive_state'
+topics:
+  - state
+  - mvvm
+  - rx
+  - reactive
 
 environment:
   sdk: '>=3.2.4 <4.0.0'
