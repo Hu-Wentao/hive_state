@@ -1,6 +1,6 @@
 name: hive_state
-description: "A global state management tool based on RxDart & HiveFlutter"
-version: 0.0.1
+description: "MVVM state management tool based on RxDart & HiveFlutter"
+version: 0.0.2
 homepage: 'https://github.com/Hu-Wentao/hive_state'
 topics:
   - state
