@@ -61,8 +61,8 @@ class MyArticleState extends HiveState<MyArticleModel> {
   // 包装初始化方法
   static Future<void> init() async => MyArticleState()._init();
 
-  /// 2.2: MV Biz logic method
-  /// 2.2: MV 业务逻辑
+  /// 2.2: VM Biz logic method
+  /// 2.2: VM 业务逻辑
   /// [mockFooAPI] 获取网络数据
   /// [update],[putError],[valueOrNull] 为[HiveState]的成员方法
   /// 使用[update] 自动捕获异常

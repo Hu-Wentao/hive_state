@@ -71,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     // 可以在进入页面时初始化状态, 自定义类型的状态必须要提供初始状态
-    BarState().put(“this is init value”);
+    BarState().put("this is init value");
 
     // 监听异常1
     BarState().stream.listen((event) {}, onError: (e) {
