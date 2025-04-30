@@ -25,9 +25,6 @@ Future<String> mockFooAPI(int times) async {
   return "mockFooAPI-Resp: Req data with [$times], at [${DateTime.now()}]";
 }
 
-// const kBoxState = 'kBoxState';
-// const kMockFooData = 'kMockFooData';
-
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 

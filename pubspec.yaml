@@ -16,12 +16,15 @@ dependencies:
   flutter:
     sdk: flutter
   hive_flutter: ^1.1.0
-  rxdart: "^0.27.7"
+  injectable: ^2.3.5
+  rxdart: ^0.27.7
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  build_runner: ^2.4.9
+  injectable_generator: ^2.4.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
