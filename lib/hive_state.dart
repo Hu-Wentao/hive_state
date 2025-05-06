@@ -1,13 +1,13 @@
 library hive_state;
 
-import 'base.dart';
-import 'mixin/loggable.dart';
-import 'mixin/updatable.dart';
+import 'src/base.dart';
+import 'src/mixin/loggable.dart';
+import 'src/mixin/updatable.dart';
 
-export 'base.dart';
-export 'package:hive_state/mixin/persistable.dart';
-export 'package:hive_state/mixin/loggable.dart';
-export 'package:hive_state/mixin/updatable.dart';
+export 'src/base.dart';
+export 'package:hive_state/src/mixin/persistable.dart';
+export 'package:hive_state/src/mixin/loggable.dart';
+export 'package:hive_state/src/mixin/updatable.dart';
 
 /// HiveState
 /// --- Basic mixin ---

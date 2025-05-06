@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
-import 'package:hive_state/base.dart';
+import 'package:hive_state/src/base.dart';
 
 /// 使用[log] 打印异常信息
 mixin LoggableMx<T> on BaseHiveState<T> {

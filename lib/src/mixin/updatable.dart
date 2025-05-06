@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:hive_state/base.dart';
-import 'package:hive_state/mixin/loggable.dart';
+import 'package:hive_state/src/base.dart';
+import 'package:hive_state/src/mixin/loggable.dart';
 
 /// 添加[update]方法, 自动捕获异常
 mixin TryUpdatableMx<T> on BaseHiveState<T>, LoggableMx<T> {

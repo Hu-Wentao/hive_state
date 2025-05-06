@@ -52,21 +52,19 @@ class MyArticleState extends HiveState<MyArticleModel> {
       super.onCreate(initValue: MyArticleModel(barContent: '', page: 0));
 
   /// 2.1.B: 初始化方法: 手动显式初始化模型数据
-  /// 也可以在这里调用[fetchDate]方法
-  Future<void> _init() => updateOrNull((_) async {
+  /// 也可以在这里调用[updateDate]方法
+  Future<void> init() => updateOrNull((_) async {
         final v = MyArticleModel(barContent: 'init', page: 0);
         // 初始化数据
         return v;
       });
-  // 包装初始化方法
-  static Future<void> init() async => MyArticleState()._init();
 
   /// 2.2: VM Biz logic method
   /// 2.2: VM 业务逻辑
   /// [mockFooAPI] 获取网络数据
   /// [update],[putError],[valueOrNull] 为[HiveState]的成员方法
   /// 使用[update] 自动捕获异常
-  Future<void> fetchDate() async => update((old) async {
+  Future<void> updateDate() async => update((old) async {
         final data = await mockFooAPI(old.page);
         return old
           ..barContent = data
@@ -94,7 +92,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
-    MyArticleState.init(); // 初始化
+    MyArticleState().init(); // 初始化
 
     // 监听报错方式2
     MyArticleState().stream.listen((event) {}, onError: (e) {
@@ -146,7 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: MyArticleState().fetchDate,
+        onPressed: MyArticleState().updateDate,
         child: const Text('+'),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
