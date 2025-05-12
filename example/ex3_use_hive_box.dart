@@ -30,6 +30,9 @@ class FooState extends HiveState<String> with HiveBoxMx, MyCipherMx {
   // 基本类型, 无需转换
   @override
   String toJson(String value) => value;
+
+  @override
+  String? get initValue => null;
 }
 
 /// ----

@@ -10,13 +10,13 @@ abstract class BaseHiveState<T> {
   /// 全局缓存名称: 使用Hive将作为box名称, 一般情况下, 无需覆写
   final String storage;
 
-  /// 默认实例名称, 一般无需更改
-  final String instance;
+  /// [T]的实例的标签
+  final String? tag;
 
   /// 一般情况下, 无需传值
   /// [storage] 全局存储名称: 使用[HiveBoxMx]时,会影响box的名称; 一般无需更改
-  /// [instance] 对象实例名称: [BaseHiveState]是单例模式,如果需要多个实例,请传入其他值;否则用默认值;
-  const BaseHiveState({this.storage = 'HS', this.instance = 'G'});
+  /// [tag] 对象实例名称: [BaseHiveState]是单例模式,如果需要多个实例,请传入其他值;否则用默认值;
+  const BaseHiveState({this.storage = 'HS', this.tag});
 
   ///
   /// [forceInit] 强制初始化: init默认只在[BaseHiveState]尚未注册时生效,传true代表强制刷新初始值
@@ -34,13 +34,13 @@ abstract class BaseHiveState<T> {
     T initialValue, {
     bool forceInit = false,
     this.storage = 'HS',
-    this.instance = 'G',
+    this.tag,
   }) {
     if (forceInit || __globalCtrlMap[stateKey] == null) put(initialValue);
   }
 
-  /// 使用默认值时,状态的key将是"HS:G:$runtimeType"
-  String get stateKey => '$storage:$instance:$runtimeType';
+  /// 使用默认值时,状态的key将是"HS:null:$runtimeType"
+  String get stateKey => '$storage:$tag:$runtimeType';
 
   StreamController<T> get ctrl =>
       (__globalCtrlMap[stateKey] ??= onCreate()) as StreamController<T>;

@@ -109,6 +109,3 @@ class XxxPageState extends State<XxxPage> {
 }
 
 ```
-
-## Additional information
-

@@ -5,7 +5,10 @@ import 'package:hive_state/hive_state.dart';
 
 /// FooState 自定义状态类
 /// - `extends HiveState<String>`: 使用[String]类型的状态
-class FooState extends HiveState<String> {}
+class FooState extends HiveState<String> {
+  @override
+  String? get initValue => '';
+}
 
 /// ----
 

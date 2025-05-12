@@ -33,7 +33,7 @@ class MyArticleModel {
 ///   VM内部可以访问其他VM的数据(其他VM的M中的数据)
 /// FooState 自定义状态类
 /// - `extends HiveState<MyArticleModel>`: 使用[MyArticleModel]类型的状态
-class MyArticleState extends HiveState<MyArticleModel> {
+class MyArticleViewModel extends HiveState<MyArticleModel> {
   /// 2.0: 创建数据请求函数, API, 数据库, 设备...
   /// 模拟API请求
   /// [times]: 模拟API传参
@@ -47,9 +47,12 @@ class MyArticleState extends HiveState<MyArticleModel> {
   /// 2.1.A: SET Init Value
   /// 2.1.A: 设置初始值, 否则[update]函数将会在没有初始值时报错;
   ///   可以跳过这一步,但这就必须要设置2.1.B 步骤
+  // @override
+  // StreamController<MyArticleModel> onCreate({MyArticleModel? initValue}) =>
+  //     super.onCreate(initValue: MyArticleModel(barContent: '', page: 0));
+  /// 2.1.A.1: 可以通过[initValue]快速设置初始值
   @override
-  StreamController<MyArticleModel> onCreate({MyArticleModel? initValue}) =>
-      super.onCreate(initValue: MyArticleModel(barContent: '', page: 0));
+  MyArticleModel? get initValue => MyArticleModel(barContent: '', page: 0);
 
   /// 2.1.B: 初始化方法: 手动显式初始化模型数据
   /// 也可以在这里调用[updateDate]方法
@@ -90,12 +93,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final vm = MyArticleViewModel();
+
   @override
   void initState() {
-    MyArticleState().init(); // 初始化
+    vm.init(); // 初始化
 
     // 监听报错方式2
-    MyArticleState().stream.listen((event) {}, onError: (e) {
+    vm.stream.listen((event) {}, onError: (e) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("App收到异常 $e")));
     });
@@ -112,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             StreamBuilder(
               /// 使用时直接新建实例, 所有实例共享stream
-              stream: MyArticleState().stream,
+              stream: vm.stream,
               builder: (c, s) {
                 if (s.hasError) {
                   // 监听异常方式1
@@ -137,14 +142,14 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             StreamBuilder(
-              stream: MyArticleState().stream,
+              stream: vm.stream,
               builder: (c, s) => Text('将要发送的参数: ${s.data?.page}'),
             )
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: MyArticleState().updateDate,
+        onPressed: vm.updateDate,
         child: const Text('+'),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
