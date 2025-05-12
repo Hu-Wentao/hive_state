@@ -1,11 +1,11 @@
 ## Features
-基于RxDart & HiveFlutter 实现的状态管理工具
+基于RxDart 实现的MVVM状态管理工具
 
 
 - 适用于:
-App/Page全局状态, 典型的如 '放置在App顶层,Page顶层的Provider状态'
+App/Page全局共享状态: 典型的如 '放置在App顶层,Page顶层的Provider状态'
 - 不适用:
-UI交互逻辑状态, 如包装后的通过Widget树搜索状态的Widget, 请使用Provider等基于InheritedWidget,Controller,ValueNotifier...的方案
+Widget私有状态: 如包装后的通过Widget树搜索状态的Widget, 请使用Provider等基于InheritedWidget,Controller,ValueNotifier...的方案
 
 ## Getting started
 
