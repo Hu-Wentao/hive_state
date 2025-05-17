@@ -4,9 +4,9 @@ import 'dart:developer' as dev;
 import 'package:flutter/foundation.dart';
 import 'package:hive_state/src/base.dart';
 
-/// 使用[log] 打印异常信息
+/// 使用[logger] 打印异常信息
 mixin LoggableMx<T> on BaseHiveState<T> {
-  log(
+  logger(
     String message, {
     DateTime? time,
     int? sequenceNumber,
@@ -29,7 +29,7 @@ mixin LoggableMx<T> on BaseHiveState<T> {
 
   @override
   BaseHiveState<T> putError(Object e, [StackTrace? s]) {
-    log('${valueToString(valueOrNull)}\n $e\n $s');
+    logger('${valueToString(valueOrNull)}\n $e\n $s');
     return super.putError(e);
   }
 
