@@ -21,7 +21,7 @@ mixin LoggableMx<T> on BaseHiveState<T> {
         time: time,
         sequenceNumber: sequenceNumber,
         level: level,
-        name: name ?? stateKey,
+        name: name ?? '$runtimeType',
         zone: zone,
         error: error,
         stackTrace: stackTrace);

@@ -8,6 +8,8 @@ import 'package:hive_state/hive_state.dart';
 /// 调用[dispose] 不会移除本地存储的数据
 /// [onCreate] 设置的初始化数据仅在本地数据为null时生效
 mixin HiveBoxMx<T> on HiveState<T> {
+  String get storage;
+
   Box? get _box => Hive.box<String>(storage);
 
   /// 全局单例: box固定为String
@@ -37,14 +39,14 @@ mixin HiveBoxMx<T> on HiveState<T> {
 
   @override
   StreamController<T> onCreate({T? initValue}) {
-    final v = _box?.get(stateKey) ?? initValue;
+    final v = _box?.get(storage) ?? initValue;
     return super.onCreate(initValue: v);
   }
 
   /// 每次更新状态, 都将保存到box中
   @override
   BaseHiveState<T> put(T value) {
-    _box?.put(stateKey, toJson(value));
+    _box?.put(storage, toJson(value));
     return super.put(value);
   }
 }

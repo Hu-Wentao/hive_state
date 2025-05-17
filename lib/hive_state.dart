@@ -25,8 +25,15 @@ export 'package:hive_state/src/mixin/updatable.dart';
 ///   而应该在[T]value中存储, [tag] 代表[T]value(Model)的实例, 而非[HiveState] (ViewModel)的实例
 abstract class HiveState<T> extends BaseHiveState<T>
     with LoggableMx<T>, TryUpdatableMx<T> {
-  /// [tag] 相当于Widget的`key`
-  const HiveState({String? tag}) : super(storage: 'HS', tag: tag);
+  StreamController<T>? _subject;
+
+  @override
+  StreamController<T> get subject => _subject ??= onCreate();
+
+  @override
+  void dispose() {
+    _subject?.close();
+  }
 
   @override
   StreamController<T> onCreate({T? initValue}) =>
