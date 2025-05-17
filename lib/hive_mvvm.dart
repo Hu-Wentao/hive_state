@@ -74,9 +74,9 @@ typedef HsViewModel<M extends HsModel> = HiveState<M>;
 /// - auto dispose [HsViewModel]
 class HsViewModelProvider<VM extends HsViewModel<M>, M extends HsModel>
     extends Provider<VM> {
-  HsViewModelProvider({
+  HsViewModelProvider(
+    Create<VM> create, {
     Key? key,
-    required Create<VM> create,
     Dispose<VM>? dispose,
     bool? lazy,
     TransitionBuilder? builder,
@@ -93,9 +93,9 @@ class HsViewModelProvider<VM extends HsViewModel<M>, M extends HsModel>
           child: child,
         );
 
-  static HsViewModelMultiProvider multi({
+  static HsViewModelMultiProvider multi(
+    Function? create, {
     Key? key,
-    Function? create,
     required List<SingleChildWidget> providers,
     TransitionBuilder? builder,
     Widget? child,
@@ -118,4 +118,29 @@ class HsViewModelMultiProvider extends MultiProvider {
     super.builder,
     super.child,
   });
+}
+
+extension HsViewModelX<VM extends HsViewModel> on HsViewModel {
+  toProvider({
+    Key? key,
+    Function(VM vm)? onCreated,
+    Dispose<VM>? dispose,
+    bool? lazy,
+    TransitionBuilder? builder,
+    Widget? child,
+  }) =>
+      HsViewModelProvider(
+        (context) {
+          final vm = this as VM;
+          onCreated?.call(vm);
+          return vm;
+        },
+        key: key,
+        dispose: (_, vm) {
+          dispose?.call(_, vm);
+          vm.dispose();
+        },
+        lazy: lazy,
+        child: child,
+      );
 }

@@ -1,3 +1,8 @@
+## 0.3.0 (break change)
+* feat hive_mvvm.dart
+* feat TryUpdatableMx add 'onError' callback 
+* rename: loggable::log -> loggable::logger
+
 ## 0.2.0
 * feat loggable add log method
 
