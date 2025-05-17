@@ -10,49 +10,16 @@ import 'package:provider/single_child_widget.dart';
 
 /// HiveState-MVVM
 
-class HsViewModelProvider<VM extends HiveState<M>, M> extends Provider<VM> {
-  HsViewModelProvider({
-    super.key,
-    required super.create,
-    super.dispose,
-    super.lazy,
-    super.builder,
-    super.child,
-  });
+/// 1. Model [HsModel]
+typedef HsModel = Object;
 
-  static HsViewModelMultiProvider multi({
-    Key? key,
-    Function? create,
-    required List<SingleChildWidget> providers,
-    TransitionBuilder? builder,
-    Widget? child,
-  }) =>
-      HsViewModelMultiProvider(
-        key: key,
-        providers: [
-          create?.call(),
-          ...providers,
-        ],
-        builder: builder,
-        child: child,
-      );
-}
-
-class HsViewModelMultiProvider extends MultiProvider {
-  HsViewModelMultiProvider({
-    super.key,
-    required super.providers,
-    super.builder,
-    super.child,
-  });
-}
-
-// typedef HsStreamBuilder<VM extends HiveState, T> = HsView<VM, T>;
+/// 2. View [HsView]
+// typedef HsStreamBuilder<VM extends HsViewModel, T> = HsView<VM, T>;
 
 typedef HsVmBuilder<VM, T> = Widget Function(
     BuildContext context, AsyncSnapshot<T> snapshot, VM vm);
 
-class HsView<VM extends HiveState, T> extends StatelessWidget {
+class HsView<VM extends HsViewModel, T> extends StatelessWidget {
   final HsVmBuilder<VM, T>? builder;
   final Widget Function(BuildContext context, VM vm, Object? e)? onError;
   final Widget Function(
@@ -97,4 +64,58 @@ class HsView<VM extends HiveState, T> extends StatelessWidget {
       },
     );
   }
+}
+
+/// 3. ViewModel [HsViewModel]
+
+typedef HsViewModel<M extends HsModel> = HiveState<M>;
+
+/// 4. Provider
+/// - auto dispose [HsViewModel]
+class HsViewModelProvider<VM extends HsViewModel<M>, M extends HsModel>
+    extends Provider<VM> {
+  HsViewModelProvider({
+    Key? key,
+    required Create<VM> create,
+    Dispose<VM>? dispose,
+    bool? lazy,
+    TransitionBuilder? builder,
+    Widget? child,
+  }) : super(
+          key: key,
+          lazy: lazy,
+          builder: builder,
+          create: create,
+          dispose: (_, vm) {
+            dispose?.call(_, vm);
+            vm.dispose();
+          },
+          child: child,
+        );
+
+  static HsViewModelMultiProvider multi({
+    Key? key,
+    Function? create,
+    required List<SingleChildWidget> providers,
+    TransitionBuilder? builder,
+    Widget? child,
+  }) =>
+      HsViewModelMultiProvider(
+        key: key,
+        providers: [
+          create?.call(),
+          ...providers,
+        ],
+        builder: builder,
+        child: child,
+      );
+}
+
+class HsViewModelMultiProvider extends MultiProvider {
+  HsViewModelMultiProvider({
+    super.key,
+    required super.providers,
+    super.builder,
+    super.child,
+  });
 }
