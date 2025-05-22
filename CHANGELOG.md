@@ -1,3 +1,6 @@
+## 0.4.0 2025-5-22
+* feat HsViewModel will show value in Devtools
+
 ## 0.3.0 (break change)
 * feat hive_mvvm.dart
 * feat TryUpdatableMx add 'onError' callback 
