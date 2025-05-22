@@ -3,6 +3,7 @@ library hive_state_mvvm;
 export 'hive_state.dart';
 export 'package:provider/provider.dart' show ReadContext, Provider;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive_state/hive_state.dart';
 import 'package:provider/provider.dart';
@@ -67,8 +68,18 @@ class HsView<VM extends HsViewModel, T> extends StatelessWidget {
 }
 
 /// 3. ViewModel [HsViewModel]
-
-typedef HsViewModel<M extends HsModel> = HiveState<M>;
+abstract class HsViewModel<M extends HsModel> extends HiveState<M>
+    with DiagnosticableTreeMixin {
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<M?>(
+      'value',
+      valueOrNull,
+      description: 'current Model value',
+    ));
+  }
+}
 
 /// 4. Provider
 /// - auto dispose [HsViewModel]
