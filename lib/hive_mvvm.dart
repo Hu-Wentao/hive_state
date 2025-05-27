@@ -25,7 +25,7 @@ class HsView<VM extends HsViewModel, T> extends StatelessWidget {
   final Widget Function(BuildContext context, VM vm, Object? e)? onError;
   final Widget Function(
     BuildContext context,
-    AsyncSnapshot<T> snapshot,
+    T? s,
     VM vm,
     Object? _, // if onError is null and has error
   )? onData;
@@ -53,15 +53,19 @@ class HsView<VM extends HsViewModel, T> extends StatelessWidget {
     return StreamBuilder<T>(
       stream: (stream?.call(vm) ?? vm.stream) as Stream<T>,
       builder: (c, s) {
-        if (s.hasError && onError != null) onError!.call(c, vm, s.error);
-        return onData?.call(
-              c,
-              s,
-              vm,
-              (s.hasError && onError == null) ? s.error : null,
-            ) ??
-            builder?.call(c, s, vm) ??
-            (throw 'onData or builder must be not null');
+        if (onError != null && s.hasError) {
+          return onError!.call(c, vm, s.error);
+        } else if (onData != null) {
+          return onData!.call(
+            c,
+            s.data,
+            vm,
+            (s.hasError && onError == null) ? s.error : null,
+          );
+        } else {
+          return builder?.call(c, s, vm) ??
+              (throw 'onData or builder must be not null');
+        }
       },
     );
   }
