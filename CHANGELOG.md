@@ -1,3 +1,6 @@
+## 0.5.0 2025-5-27 (break)
+* feat HsView.onData use 'T?' instead 'AsyncSnapshot<T>'
+
 ## 0.4.0 2025-5-22
 * feat HsViewModel will show value in Devtools
 
