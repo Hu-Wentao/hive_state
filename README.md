@@ -1,111 +1,55 @@
 ## Features
+
 基于RxDart 实现的MVVM状态管理工具
 
-
-- 适用于:
-App/Page全局共享状态: 典型的如 '放置在App顶层,Page顶层的Provider状态'
-- 不适用:
-Widget私有状态: 如包装后的通过Widget树搜索状态的Widget, 请使用Provider等基于InheritedWidget,Controller,ValueNotifier...的方案
+- ViewModel与BuildContext 完全解偶, 可以独立Flutter进行测试.
+- Stream级联刷新, 逐层传递.
 
 ## Getting started
 
 run example:
 
 ```shell
-# simple example: use String type model
-flutter run example/ex1_simple.dart -d chrome
-# complex example: use custom type model
-flutter run example/ex2_use_model.dart -d chrome
-# use `hive_flutter`, persistent API data example
-flutter run example/ex3_use_hive_box.dart -d chrome
+# simple example: reactive viewmodel
+flutter run example/ex1_simple.dart
 ```
 
 ## Usage
 
 ```dart
-import 'package:flutter/material.dart';
-import 'package:hive_state/hive_state.dart';
+/// Model
+class UserModel {
+  String chosenUserId;
 
-/// 1. Define your state
-/// 1. 定义状态
-class FooState extends HiveState<String> {
+  UserModel({
+    required this.chosenUserId,
+  });
   @override
-  StreamController<String> onCreate({String? initValue}) =>
-      super.onCreate(initValue: 'this is initial value');
+  String toString() => 'UserModel{chosenUserId: $chosenUserId}';
 }
 
-/// 2. Update your state
-/// 2. 更新状态数据/异常
-/// ... callback, API, ...
-onTap() {
-  FooState().put('some data');
-  // or
-  FooState().putError('error info');
-  // or 
-  FooState().update((old) => 'new data with [$old]');
-  // if old is object:
-  FooState().update((old) => old
-    ..someField = null
-    ..fooField = null
-    ..barField = null);
-  // or
-  FooState().updateOrNull((old) => 'new data with [$old]');
-}
-
-/// 3. Read Value
-/// 3. 读取状态数据
-/// ... UI2 ...
-buildSimpleUI() {
-  var v;
-  v = FooState().value;
-  // or
-  v = FooState().valueOrNull;
-
-  return Text("$v");
-}
-
-/// 4. Listen to your state
-/// 4. 监听状态&异常数据变化
-/// ... UI ...
-class _MyHomePageState extends State<MyHomePage> {
+/// ViewModel
+class UserViewModel extends HsViewModel<UserModel> {
   @override
-  void initState() {
-    // 可以在进入页面时初始化状态, 自定义类型的状态必须要提供初始状态
-    BarState().put("this is init value");
+  final UserModel initValue;
 
-    // 监听异常1
-    BarState().stream.listen((event) {}, onError: (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("App收到异常 $e")));
+  UserViewModel({required this.initValue});
+
+  chosenUser(String userId) async {
+    update((old) {
+      return old..chosenUserId = userId;
     });
-    super.initState();
-  }
-
-  buildSomeUI() {
-    return StreamBuilder(
-      // 监听状态
-      stream: FooState().stream,
-      builder: (context, snapshot) {
-        // 监听/处理异常2
-        if (snapshot.error != null) {
-          return Text("ERROR: ${snapshot.error}");
-        }
-        return Text("${s.data}");
-      },
-    );
-  }
-
-}
-
-
-/// 5. dispose
-/// 如果该状态退出页面后不再使用,则可以清除
-/// ... UI3 ...
-class XxxPageState extends State<XxxPage> {
-  dispose() {
-    FooState().dispose();
-    super.dispose();
   }
 }
 
+main(){
+  /// create
+  final vmGlobalUser = UserViewModel(
+      initValue: UserModel(
+        chosenUserId: 'user-111',
+      ));
+
+  /// use
+  vmGlobalUser.chosenUser('user-222');
+}
 ```
