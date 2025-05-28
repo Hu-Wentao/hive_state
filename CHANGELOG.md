@@ -1,3 +1,6 @@
+## 0.6.0 2025-5-28
+* feat 'context.read' can read from BuildContext
+
 ## 0.5.0 2025-5-27 (break)
 * feat HsView.onData use 'T?' instead 'AsyncSnapshot<T>'
 

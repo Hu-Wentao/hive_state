@@ -1,12 +1,14 @@
 library hive_state_mvvm;
 
 export 'hive_state.dart';
-export 'package:provider/provider.dart' show ReadContext, Provider;
+export 'package:provider/provider.dart' show Provider;
 
+import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hive_state/hive_state.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' hide ReadContext;
 import 'package:provider/single_child_widget.dart';
 
 /// HiveState-MVVM
@@ -158,4 +160,26 @@ extension HsViewModelX<VM extends HsViewModel> on HsViewModel {
         lazy: lazy,
         child: child,
       );
+}
+
+extension HsReadContext on BuildContext {
+  T read<T extends HsViewModel>({bool onlyGlobal = false}) {
+    if (onlyGlobal) return readGlobal()!;
+    try {
+      return Provider.of<T>(this, listen: false);
+    } on ProviderNullException {
+      final r = readGlobal<T>(nothrow: true);
+      if (r != null) return r;
+      rethrow;
+    }
+  }
+
+  T? readGlobal<T extends HsViewModel>({bool nothrow = false}) {
+    if (GetIt.I.isRegistered<T>()) {
+      log('Get Global <$T>', name: 'HsMVVM');
+      return GetIt.I.get<T>();
+    }
+    if (nothrow) return null;
+    throw "<$T> not register in GetIt; try `GetIt.I.registerSingleton()`";
+  }
 }
