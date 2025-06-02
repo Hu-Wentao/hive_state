@@ -1,5 +1,6 @@
-## 0.6.0 2025-5-28
+## 0.6.0 2025-6-2
 * feat 'context.read' can read from BuildContext
+* fix onCreate use param first
 
 ## 0.5.0 2025-5-27 (break)
 * feat HsView.onData use 'T?' instead 'AsyncSnapshot<T>'
