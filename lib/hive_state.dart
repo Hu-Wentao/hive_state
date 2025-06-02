@@ -37,7 +37,7 @@ abstract class HiveState<T> extends BaseHiveState<T>
 
   @override
   StreamController<T> onCreate({T? initValue}) =>
-      super.onCreate(initValue: this.initValue);
+      super.onCreate(initValue: initValue ?? this.initValue);
 
   /// [initValue] 初始值
   /// 如果不想设置初始值, 请return null;
