@@ -23,6 +23,7 @@ typedef HsVmBuilder<VM, T> = Widget Function(
     BuildContext context, AsyncSnapshot<T> snapshot, VM vm);
 
 class HsView<VM extends HsViewModel, T> extends StatelessWidget {
+  final VM? vm;
   final HsVmBuilder<VM, T>? builder;
   final Widget Function(BuildContext context, VM vm, Object? e)? onError;
   final Widget Function(
@@ -39,6 +40,7 @@ class HsView<VM extends HsViewModel, T> extends StatelessWidget {
     this.onError,
     required this.onData,
     this.stream,
+    this.vm,
   });
 
   const HsView.builder({
@@ -47,11 +49,12 @@ class HsView<VM extends HsViewModel, T> extends StatelessWidget {
     this.onError,
     this.onData,
     this.stream,
+    this.vm,
   });
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.read<VM>();
+    final vm = this.vm ?? context.read<VM>();
     return StreamBuilder<T>(
       stream: (stream?.call(vm) ?? vm.stream) as Stream<T>,
       builder: (c, s) {
@@ -110,6 +113,21 @@ class HsViewModelProvider<VM extends HsViewModel<M>, M extends HsModel>
           child: child,
         );
 
+  /// use in dialog context
+  HsViewModelProvider.value({
+    Key? key,
+    required VM value,
+    UpdateShouldNotify<VM>? updateShouldNotify,
+    TransitionBuilder? builder,
+    Widget? child,
+  }) : super.value(
+          key: key,
+          builder: builder,
+          value: value,
+          updateShouldNotify: updateShouldNotify,
+          child: child,
+        );
+
   static HsViewModelMultiProvider multi(
     Function? create, {
     Key? key,
@@ -138,6 +156,7 @@ class HsViewModelMultiProvider extends MultiProvider {
 }
 
 extension HsViewModelX<VM extends HsViewModel> on HsViewModel {
+  @Deprecated('removed，use HsViewModelProvider')
   toProvider({
     Key? key,
     Function(VM vm)? onCreated,
