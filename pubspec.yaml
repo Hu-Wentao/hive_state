@@ -1,6 +1,6 @@
 name: hive_state
 description: "MVVM state management tool based on RxDart"
-version: 0.6.0
+version: 0.7.0
 homepage: 'https://github.com/Hu-Wentao/hive_state'
 topics:
   - state

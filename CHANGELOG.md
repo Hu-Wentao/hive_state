@@ -1,3 +1,7 @@
+## 0.7.0 2025-6-3
+* feat HsView add .vm; 
+* feat HsViewModelProvider.value
+
 ## 0.6.0 2025-6-2
 * feat 'context.read' can read from BuildContext
 * fix onCreate use param first
