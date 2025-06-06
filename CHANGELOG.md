@@ -1,3 +1,6 @@
+## 0.7.1 2025-6-6
+* fix HsReadContext read global var error
+
 ## 0.7.0 2025-6-3
 * feat HsView add .vm; 
 * feat HsViewModelProvider.value
