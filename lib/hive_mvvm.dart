@@ -183,10 +183,10 @@ extension HsViewModelX<VM extends HsViewModel> on HsViewModel {
 
 extension HsReadContext on BuildContext {
   T read<T extends HsViewModel>({bool onlyGlobal = false}) {
-    if (onlyGlobal) return readGlobal()!;
+    if (onlyGlobal) return readGlobal<T>()!;
     try {
       return Provider.of<T>(this, listen: false);
-    } on ProviderNullException {
+    } catch (e) {
       final r = readGlobal<T>(nothrow: true);
       if (r != null) return r;
       rethrow;
@@ -195,7 +195,7 @@ extension HsReadContext on BuildContext {
 
   T? readGlobal<T extends HsViewModel>({bool nothrow = false}) {
     if (GetIt.I.isRegistered<T>()) {
-      log('Get Global <$T>', name: 'HsMVVM');
+      log('HsReadContext get Global <$T>', name: 'HsMVVM');
       return GetIt.I.get<T>();
     }
     if (nothrow) return null;
