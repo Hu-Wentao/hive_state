@@ -1,6 +1,8 @@
 # Repo rename and move to [FlowR](https://github.com/Hu-Wentao/flowr)
 2025-6-8
 
+new repo: https://github.com/Hu-Wentao/flowr
+
 ## Features
 
 基于RxDart 实现的MVVM状态管理工具
